@@ -73,7 +73,7 @@
 
 <body>
 
-    <h1>🤖 AI 문제 생성기</h1>
+    <h1> AI 문제 생성기</h1>
 
     <p>
         공부 내용을 입력하면 AI가 문제를 생성합니다.
@@ -120,7 +120,7 @@ OSI 7계층은 네트워크 통신을 7단계로 나눈 모델이다...">
 
             await puter.auth.signIn();
 
-            alert("✅ 로그인 성공!");
+            alert(" 로그인 성공!");
 
         }
 
@@ -128,7 +128,7 @@ OSI 7계층은 네트워크 통신을 7단계로 나눈 모델이다...">
 
             console.error(err);
 
-            alert("❌ 로그인 실패");
+            alert(" 로그인 실패");
         }
     }
 
@@ -148,7 +148,7 @@ OSI 7계층은 네트워크 통신을 7단계로 나눈 모델이다...">
 
         // 로딩 표시
         document.getElementById("output").innerText =
-        "🤖 AI가 문제 생성중...";
+        " AI가 문제 생성중...";
 
         try{
 
@@ -180,7 +180,7 @@ ${text}`
             else{
 
                 document.getElementById("output").innerText =
-                "❌ AI 응답 없음";
+                " AI 응답 없음";
             }
 
         }
@@ -190,7 +190,7 @@ ${text}`
             console.error(err);
 
             document.getElementById("output").innerText =
-            "❌ 오류 발생\n\n" +
+            " 오류 발생\n\n" +
             "1. Puter 로그인 확인\n" +
             "2. 크롬 브라우저 사용\n" +
             "3. 새로고침 후 다시 시도";
