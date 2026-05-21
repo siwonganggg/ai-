@@ -7,7 +7,6 @@
 
     <title>AI 문제 생성기</title>
 
-    <!-- Puter AI -->
     <script src="https://js.puter.com/v2/"></script>
 
     <style>
@@ -52,6 +51,11 @@
             color:white;
         }
 
+        #toggleAnswerBtn{
+            background:#ff9800;
+            color:white;
+        }
+
         #result{
             margin-top:30px;
             background:white;
@@ -61,11 +65,20 @@
             margin-left:auto;
             margin-right:auto;
             box-shadow:0 0 10px rgba(0,0,0,0.1);
+            text-align:left;
         }
 
         #output{
             white-space:pre-wrap;
-            text-align:left;
+        }
+
+        #answer{
+            white-space:pre-wrap;
+            display:none;
+            margin-top:10px;
+            background:#f0f0f0;
+            padding:15px;
+            border-radius:10px;
         }
 
     </style>
@@ -73,54 +86,59 @@
 
 <body>
 
-    <h1> AI 문제 생성기</h1>
+    <h1>AI 문제 생성기</h1>
 
     <p>
         공부 내용을 입력하면 AI가 문제를 생성합니다.
     </p>
 
-    <!-- 로그인 버튼 -->
     <button id="loginBtn" onclick="login()">
         Puter 로그인
     </button>
 
     <br><br>
 
-    <!-- 입력창 -->
     <textarea
         id="inputText"
         placeholder="예시:
-OSI 7계층은 네트워크 통신을 7단계로 나눈 모델이다...">
+고구려는 기원전 37년에 주몽이 건국하였다...">
     </textarea>
 
     <br>
 
-    <!-- 문제 생성 버튼 -->
     <button id="generateBtn" onclick="generateQuestion()">
         문제 생성하기
     </button>
 
-    <!-- 결과 -->
+    <button id="toggleAnswerBtn" onclick="toggleAnswer()">
+        정답 보기
+    </button>
+
     <div id="result">
 
-        <h3>생성된 문제</h3>
+        <h3>문제</h3>
 
         <p id="output">
-            여기에 AI 문제가 생성됩니다.
+            여기에 문제가 생성됩니다.
         </p>
+
+        <h3>정답</h3>
+
+        <div id="answer">
+            여기에 정답이 표시됩니다.
+        </div>
 
     </div>
 
 <script>
 
-    // 로그인 함수
     async function login(){
 
         try{
 
             await puter.auth.signIn();
 
-            alert(" 로그인 성공!");
+            alert("로그인 성공");
 
         }
 
@@ -128,41 +146,62 @@ OSI 7계층은 네트워크 통신을 7단계로 나눈 모델이다...">
 
             console.error(err);
 
-            alert(" 로그인 실패");
+            alert("로그인 실패");
         }
     }
 
-    // 문제 생성 함수
     async function generateQuestion(){
 
         const text =
         document.getElementById("inputText").value;
 
-        // 입력 확인
         if(!text.trim()){
 
-            alert("공부 내용을 입력하세요!");
+            alert("내용을 입력하세요");
 
             return;
         }
 
-        // 로딩 표시
         document.getElementById("output").innerText =
-        " AI가 문제 생성중...";
+        "문제 생성중...";
+
+        document.getElementById("answer").style.display =
+        "none";
 
         try{
 
-            // AI 요청
             const response =
             await puter.ai.chat(
 
-`다음 공부 내용을 기반으로
-객관식 문제 3개를 만들어줘.
+`다음 공부 내용을 기반으로 객관식 문제 3개를 만들어줘.
 
-조건:
-- 보기 4개 만들기
-- 정답도 표시하기
-- 한국어로 출력
+출력 형식:
+
+[문제]
+
+1.
+①
+②
+③
+④
+
+2.
+①
+②
+③
+④
+
+3.
+①
+②
+③
+④
+
+[정답]
+
+1번:
+2번:
+3번:
 
 공부 내용:
 ${text}`
@@ -171,17 +210,17 @@ ${text}`
 
             console.log(response);
 
-            // 응답 출력
-            if(response?.message?.content){
+            const result =
+            response.message.content[0].text;
 
-                document.getElementById("output").innerText =
-                response.message.content[0].text;
-}
-            else{
+            const parts =
+            result.split("[정답]");
 
-                document.getElementById("output").innerText =
-                " AI 응답 없음";
-            }
+            document.getElementById("output").innerText =
+            parts[0];
+
+            document.getElementById("answer").innerText =
+            parts[1] || "정답 없음";
 
         }
 
@@ -190,10 +229,25 @@ ${text}`
             console.error(err);
 
             document.getElementById("output").innerText =
-            " 오류 발생\n\n" +
-            "1. Puter 로그인 확인\n" +
-            "2. 크롬 브라우저 사용\n" +
-            "3. 새로고침 후 다시 시도";
+            "오류 발생";
+
+        }
+    }
+
+    function toggleAnswer(){
+
+        const answer =
+        document.getElementById("answer");
+
+        if(answer.style.display === "none"){
+
+            answer.style.display = "block";
+
+        }
+
+        else{
+
+            answer.style.display = "none";
         }
     }
 
