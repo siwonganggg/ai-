@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI 문제 생성기</title>
+    
+    <link rel="icon" type="image/png" href="images/logo.png">
+
+    <script src="https://js.puter.com/v2/"></script>
+
+    <style>
+
+        body{
+            font-family: Arial, sans-serif;
+            background:linear-gradient(to bottom, #ffffff, #dfe9f3);
+            text-align:center;
+            padding:50px;
+        }
+
+        h1{
+            color:#333;
+        }
+
+        textarea{
+            width:80%;
+            height:180px;
+            padding:15px;
+            font-size:16px;
+            border-radius:10px;
+            border:1px solid #ccc;
+            resize:none;
+        }
+
+        textarea:focus{
+            outline:none;
+            border:1px solid #ffa81b;
+            box-shadow:0 0 10px rgba(254, 106, 8, 0.82);
+        }
+
+        button{
+            margin-top:15px;
+            padding:12px 24px;
+            font-size:16px;
+            border:none;
+            border-radius:10px;
+            cursor:pointer;
+            transition:0.2s;
+        }
+
+        button:hover{
+        transform:translateY(-3.14px);
+        opacity:0.9;
+        }
+
+        button:active{
+            transform:scale(0.97);
+        }
+
+        #loginBtn{
+            background:#4285F4;
+            color:white;
+        }
+
+        #generateBtn{
+            background:#4CAF50;
+            color:white;
+        }
+
+        #toggleAnswerBtn{
+            background:#ff9800;
+            color:white;
+        }
+
+        #result{
+            margin-top:30px;
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            width:80%;
+            margin-left:auto;
+            margin-right:auto;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+            text-align:left;
+            animation:fadeIn 0.5s ease;
+        }
+
+        #result, textarea{
+            max-width:800px;
+        }
+
+        @keyframes fadeIn{
+            from{
+                opacity:0;
+                transform:translateY(10px);
+            }
+
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
+        }
+
+        #output{
+            white-space:pre-wrap;
+        }
+
+        #answer{
+            white-space:pre-wrap;
+            display:none;
+            margin-top:10px;
+            background:#f0f0f0;
+            padding:15px;
+            border-radius:10px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <h1>AI 문제 생성기</h1>
+
+    <p>
+        공부 내용을 입력하면 AI가 문제를 생성합니다.
+    </p>
+
+    <button id="loginBtn" onclick="login()">
+        Puter 로그인
+    </button>
+
+    <br><br>
+
+    <textarea
+        id="inputText"
+        placeholder="예시:
+고구려는 기원전 37년에 주몽이 건국하였다...">
+    </textarea>
+
+    <br>
+
+    <button id="generateBtn" onclick="generateQuestion()">
+        문제 생성하기
+    </button>
+
+    <button id="toggleAnswerBtn" onclick="toggleAnswer()">
+        정답 보기
+    </button>
+
+    <div id="result">
+
+        <h3>문제</h3>
+
+        <p id="output">
+            여기에 문제가 생성됩니다.
+        </p>
+
+        <h3>정답</h3>
+
+        <div id="answer">
+            여기에 정답이 표시됩니다.
+        </div>
+
+    </div>
+
+<script>
+
+    async function login(){
+
+        try{
+
+            await puter.auth.signIn();
+
+            alert("로그인 성공");
+
+        }
+
+        catch(err){
+
+            console.error(err);
+
+            alert("로그인 실패");
+        }
+    }
+
+    async function generateQuestion(){
+
+        const text =
+        document.getElementById("inputText").value;
+
+        if(!text.trim()){
+
+            alert("내용을 입력하세요");
+
+            return;
+        }
+
+        document.getElementById("output").innerText =
+        "문제 생성중...";
+
+        document.getElementById("answer").style.display =
+        "none";
+
+        try{
+
+            const response =
+            await puter.ai.chat(
+
+`다음 공부 내용을 기반으로 객관식 문제 3개를 만들어줘.
+
+출력 형식:
+
+[문제]
+
+1.
+①
+②
+③
+④
+
+2.
+①
+②
+③
+④
+
+3.
+①
+②
+③
+④
+
+[정답]
+
+1번:
+2번:
+3번:
+
+공부 내용:
+${text}`
+
+            );
+
+            console.log(response);
+
+            const result =
+            response.message.content[0].text;
+
+            const parts =
+            result.split("[정답]");
+
+            document.getElementById("output").innerText =
+            parts[0];
+
+            document.getElementById("answer").innerText =
+            parts[1] || "정답 없음";
+
+        }
+
+        catch(err){
+
+            console.error(err);
+
+            document.getElementById("output").innerText =
+            "오류 발생";
+
+        }
+    }
+
+    function toggleAnswer(){
+
+        const answer =
+        document.getElementById("answer");
+
+        if(answer.style.display === "none"){
+
+            answer.style.display = "block";
+
+        }
+
+        else{
+
+            answer.style.display = "none";
+        }
+    }
+
+</script>
+
+</body>
+</html>
