@@ -234,17 +234,30 @@
 
 [정답]
 
-1번:
-2번:
-3번:
-
 공부 내용:
 ${text}`
 
-            );
+console.log(response);
 
-            console.log(response);
+// AI의 답변 텍스트 추출
+const result = response.message.content[0].text;
 
+// '[정답]'을 기준으로 문자열을 2개로 분리
+// parts[0]에는 문제들이, parts[1]에는 정답들이 들어갑니다.
+const parts = result.split("[정답]");
+
+if (parts.length >= 2) {
+    const questionsText = parts[0].trim(); // 문제 텍스트
+    const answersText = parts[1].trim();   // 정답 텍스트
+    
+    console.log("📝 추출된 문제:\n", questionsText);
+    console.log("🔑 추출된 정답:\n", answersText);
+    
+    // 여기서부터 텍스트를 다시 1번, 2번, 3번 단위로 쪼개어
+    // 화면에 출력하는 복잡한 과정이 추가로 필요합니다.
+} else {
+    alert("AI가 지정된 형식대로 답변하지 않았습니다.");
+}
             const result =
             response.message.content[0].text;
 
