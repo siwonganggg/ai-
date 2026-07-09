@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 문제 생성기</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>AI문제생성기</h1>
+
+    <p class="subtitle">
+        공부한 내용을 입력하면 AI가 자동으로 문제를 생성합니다.
+    </p>
+
+    <textarea
+        id="studyText"
+        placeholder="예시)
+
+아카느엥 리제는 이쁘당ㅎㅎ    
+
+"></textarea>   
+
+
+    <div class="optionBox">
+
+        <div class="option">
+            <label>난이도</label>
+
+            <select id="level">
+
+                <option>쉬움</option>
+
+                <option selected>보통</option>
+
+                <option>어려움(주관식 x)</option>   
+
+            </select>
+        </div>
+
+        <div class="option">
+
+            <label>문제 개수</label>
+
+            <select id="count">
+
+                <option>3</option>
+
+                <option selected>5</option>
+
+                <option>10</option>
+
+            </select>
+            
+        </div>
+
+        <div class="option">
+
+            <label>문제 유형</label>
+
+            <select id="type">
+
+                <option selected>객관식</option>
+
+                <option>주관식</option>
+
+                <option>OX</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <div class="buttonArea">
+
+        <button id="generateBtn">
+
+            문제 생성하기
+
+        </button>
+
+        <button id="answerBtn">
+
+            정답 보기
+
+        </button>
+
+    </div>
+
+    <div class="resultBox">
+
+        <h2>문제</h2>
+
+        <pre id="questionOutput">
+
+여기에 문제가 표시됩니다.
+
+        </pre>
+
+    </div>
+
+    <div class="resultBox" id="answerBox">
+
+        <h2>정답</h2>
+
+        <pre id="answerOutput">
+
+여기에 정답이 표시됩니다.
+
+        </pre>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
