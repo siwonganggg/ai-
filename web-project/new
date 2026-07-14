@@ -1,0 +1,188 @@
+  /* ===== 기본 설정 ===== */
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: "맑은 고딕", sans-serif;
+    background: linear-gradient(135deg,#ffffff,#ffffff);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+/* ===== 메인 박스 ===== */
+
+.container{
+    width: 900px;
+    background: white;
+    border-radius: 15px;
+    padding: 35px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+h1{
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.description{
+    text-align: center;
+    color: gray;
+    margin-bottom: 30px;
+    font-size: 15px;
+}
+
+/* ===== 과목 입력 ===== */
+
+.subject{
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.subject label{
+    width: 130px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.subject input{
+    flex: 1;
+    padding: 12px;
+    font-size: 17px;
+    border: 2px solid #dcdcdc;
+    border-radius: 8px;
+    transition: .2s;
+}
+
+.subject input:focus{
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 8px rgba(52,152,219,.3);
+}
+
+/* ===== 버튼 ===== */
+
+button{
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    background: #ec0c0c;
+    color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .3s;
+}
+
+button:hover{
+    background: #0000ff;
+}
+
+button:active{
+    transform: scale(.98);
+}
+
+/* ===== 결과창 ===== */
+
+#result{
+    margin-top: 35px;
+}
+
+/* ===== 표 ===== */
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+table th{
+    background: #fbfbfb;
+    color: white;
+    padding: 12px;
+}
+
+table td{
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+table tr:nth-child(even){
+    background: #f8f8f8;
+}
+
+table tr:hover{
+    background: #eef7ff;
+}
+
+/* ===== 평균 ===== */
+
+.average{
+    margin-top: 20px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+/* ===== 등급 색상 ===== */
+
+.grade1{
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.grade2{
+    color: #4053e6;
+    font-weight: bold;
+}
+
+.grade3{
+    color: #b8d943;
+    font-weight: bold;
+}
+
+.grade4{
+    color: #ed49b1;
+    font-weight: bold;
+}
+
+.grade5{
+    color: gray;
+    font-weight: bold;
+}
+
+/* ===== 반응형 ===== */
+
+@media(max-width:700px){
+
+    .container{
+        width:100%;
+        padding:20px;
+    }
+
+    .subject{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .subject label{
+        margin-bottom:8px;
+    }
+
+    .subject input{
+        width:100%;
+    }
+
+}
