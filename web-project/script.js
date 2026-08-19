@@ -1,5 +1,6 @@
 const generateBtn = document.getElementById("generateBtn");
 const answerBtn = document.getElementById("answerBtn");
+const themeToggle = document.getElementById("themeToggle");
 
 const questionOutput = document.getElementById("questionOutput");
 const answerOutput = document.getElementById("answerOutput");
@@ -7,6 +8,7 @@ const answerBox = document.getElementById("answerBox");
 
 generateBtn.addEventListener("click", generateQuestion);
 answerBtn.addEventListener("click", toggleAnswer);
+themeToggle.addEventListener("click", toggleTheme);
 
 async function generateQuestion() {
 
@@ -62,7 +64,7 @@ async function generateQuestion() {
         console.error(err);
 
         questionOutput.textContent =
-            "서버에 연결할 수 없습니다.\n\nnode server.js가 실행 중인지 확인하세요.";
+            "서버에 연결할 수 없습니다.\nnode server.js가 실행 중인지 확인하세요.";
 
     }
 
@@ -86,5 +88,12 @@ function toggleAnswer() {
         answerBtn.textContent = "정답 보기";
 
     }
+
+}
+
+function toggleTheme() {
+
+    const isDarkMode = document.body.classList.toggle("dark-mode");
+    themeToggle.textContent = isDarkMode ? "라이트 모드" : "다크 모드";
 
 }
