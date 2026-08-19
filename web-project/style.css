@@ -14,6 +14,21 @@ body{
     padding:40px;
 }
 
+#themeToggle{
+    position:fixed;
+    top:20px;
+    left:20px;
+    flex:none;
+    width:auto;
+    padding:10px 16px;
+    background:#333;
+    color:#fff;
+}
+
+#themeToggle:hover{
+    background:#555;
+}
+
 .container{
     width:100%;
     max-width:1000px;
@@ -148,6 +163,43 @@ pre{
 
 .success{
     color:#2e7d32;
+}
+
+body.dark-mode{
+    background:#181818;
+    color:#f1f1f1;
+}
+
+body.dark-mode .container{
+    background:#292929;
+}
+
+body.dark-mode h1,
+body.dark-mode .subtitle,
+body.dark-mode .option label,
+body.dark-mode .resultBox h2{
+    color:#f1f1f1;
+}
+
+body.dark-mode textarea,
+body.dark-mode .option select,
+body.dark-mode .resultBox{
+    background:#353535;
+    color:#f1f1f1;
+    border-color:#666;
+}
+
+body.dark-mode textarea::placeholder{
+    color:#bdbdbd;
+}
+
+body.dark-mode #themeToggle{
+    background:#f1f1f1;
+    color:#222;
+}
+
+body.dark-mode #themeToggle:hover{
+    background:#d8d8d8;
 }
 
 @media(max-width:768px){
