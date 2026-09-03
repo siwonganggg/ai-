@@ -2,129 +2,286 @@
 <html lang="ko">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 문제 생성기</title>
-    <link rel="icon" type="image/png" href="images/logo.png">
 
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>AI 문제 생성기</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="images/logo.png"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body>
 
-<button id="themeToggle" type="button">다크 모드</button>
+    <!-- ========================================
+         다크 / 라이트 모드
+    ========================================= -->
 
-<div class="container">
+    <button
+        id="themeToggle"
+        type="button"
+    >
+        다크 모드
+    </button>
 
-    <h1>AI 문제 생성기</h1>
 
-    <p class="subtitle">
-        공부한 내용을 입력하면 AI가 자동으로 문제를 생성합니다.
-    </p>
+    <!-- ========================================
+         사용자 영역
+    ========================================= -->
 
-    <textarea
-        id="studyText"
-        placeholder="예시)
+    <div id="userArea">
 
-아카느엥 리제는 이쁘당ㅎㅎ">
+        <span id="welcomeMessage">
+            로그인해주세요.
+        </span>
 
-</textarea>
 
-    
+        <a
+            id="loginBtn"
+            href="login.html"
+        >
+            로그인
+        </a>
 
-    <div class="optionBox">
 
-        <div class="option">
-            <label>난이도</label>
+        <a
+            id="signupBtn"
+            href="signup.html"
+        >
+            회원가입
+        </a>
 
-            <select id="level">
 
-                <option>쉬움</option>
+        <a
+            id="historyBtn"
+            href="history.html"
+            style="display:none;"
+        >
+            내 기록
+        </a>
 
-                <option selected>보통</option>
 
-                <option>어려움(주관식 x)</option>   
-
-            </select>
-        </div>
-
-        <div class="option">
-
-            <label>문제 개수</label>
-
-            <select id="count">
-
-                <option>3</option>
-
-                <option selected>5</option>
-
-                <option>10</option>
-
-            </select>
-            
-        </div>
-
-        <div class="option">
-
-            <label>문제 유형</label>
-
-            <select id="type">
-
-                <option selected>객관식</option>
-
-                <option>주관식</option>
-
-                <option>OX 퀴즈</option>
-
-            </select>
-
-        </div>
-
-    </div>
-
-    <div class="buttonArea">
-
-        <button id="generateBtn">
-
-            문제 생성하기
-
-        </button>
-
-        <button id="answerBtn">
-
-            정답 보기
-
+        <button
+            id="logoutBtn"
+            type="button"
+            style="display:none;"
+        >
+            로그아웃
         </button>
 
     </div>
 
-    <div class="resultBox">
 
-        <h2>문제</h2>
+    <!-- ========================================
+         메인 컨테이너
+    ========================================= -->
 
-        <pre id="questionOutput">
+    <div class="container">
 
-여기에 문제가 표시됩니다.
 
-        </pre>
+        <!-- 제목 -->
+
+        <h1>
+            AI 문제 생성기
+        </h1>
+
+
+        <p class="subtitle">
+            공부한 내용을 입력하면 AI가 자동으로 문제를 생성합니다.
+        </p>
+
+
+        <!-- ====================================
+             학습 내용
+        ===================================== -->
+
+        <textarea
+            id="studyText"
+            placeholder="공부한 내용을 입력하세요.
+
+예시)
+아카네 리제는 이쁘다."
+        ></textarea>
+
+
+        <!-- ====================================
+             옵션
+        ===================================== -->
+
+        <div class="optionBox">
+
+
+            <!-- 난이도 -->
+
+            <div class="option">
+
+                <label for="level">
+                    난이도
+                </label>
+
+                <select id="level">
+
+                    <option>
+                        쉬움
+                    </option>
+
+                    <option selected>
+                        보통
+                    </option>
+
+                    <option>
+                        어려움
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- 문제 개수 -->
+
+            <div class="option">
+
+                <label for="count">
+                    문제 개수
+                </label>
+
+                <select id="count">
+
+                    <option>
+                        3
+                    </option>
+
+                    <option selected>
+                        5
+                    </option>
+
+                    <option>
+                        10
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- 문제 유형 -->
+
+            <div class="option">
+
+                <label for="type">
+                    문제 유형
+                </label>
+
+                <select id="type">
+
+                    <option selected>
+                        객관식
+                    </option>
+
+                    <option>
+                        주관식
+                    </option>
+
+                    <option>
+                        OX 퀴즈
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================================
+             버튼
+        ===================================== -->
+
+        <div class="buttonArea">
+
+            <button
+                id="generateBtn"
+                type="button"
+            >
+                문제 생성하기
+            </button>
+
+
+            <button
+                id="answerBtn"
+                type="button"
+            >
+                정답 보기
+            </button>
+
+        </div>
+
+
+        <!-- ====================================
+             문제 결과
+        ===================================== -->
+
+        <div class="resultBox">
+
+            <h2>
+                문제
+            </h2>
+
+
+            <pre id="questionOutput">여기에 문제가 표시됩니다.</pre>
+
+        </div>
+
+
+        <!-- ====================================
+             정답 결과
+        ===================================== -->
+
+        <div
+            class="resultBox"
+            id="answerBox"
+        >
+
+            <h2>
+                정답
+            </h2>
+
+
+            <pre id="answerOutput">여기에 정답이 표시됩니다.</pre>
+
+        </div>
+
 
     </div>
 
-    <div class="resultBox" id="answerBox">
 
-        <h2>정답</h2>
+    <!-- ========================================
+         JavaScript
 
-        <pre id="answerOutput">
+         auth.js가 먼저 실행되어야 함
+    ========================================= -->
 
-여기에 정답이 표시됩니다.
+    <script src="auth.js"></script>
 
-        </pre>
+    <script src="script.js"></script>
 
-    </div>
-
-</div>
-
-<script src="script.js"></script>
 
 </body>
+
 </html>
