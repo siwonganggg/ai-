@@ -1,5 +1,7 @@
 let currentQuestion = "";
 let currentAnswer = "";
+let currentQuiz = null;
+let currentHistoryId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     initializeTheme();
@@ -87,7 +89,7 @@ function resetAnswerArea() {
 
     if (answerOutput) {
         answerOutput.className = "";
-        answerOutput.textContent = "여기에 정답이 표시됩니다.";
+        answerOutput.textContent = "정답 확인을 누르면 결과와 해설이 표시됩니다.";
     }
 
     if (answerBox) {
@@ -123,6 +125,8 @@ async function generateQuestion() {
 
     currentQuestion = "";
     currentAnswer = "";
+    currentQuiz = null;
+    currentHistoryId = null;
 
     setQuestionMessage(
         "AI가 문제를 생성하고 있습니다...",
@@ -166,18 +170,14 @@ async function generateQuestion() {
 
         currentQuestion = String(data.questions || "").trim();
         currentAnswer = String(data.answers || "").trim();
+        currentQuiz = data.quiz;
+        currentHistoryId = data.historyId || null;
 
-        if (!currentQuestion) {
+        if (!currentQuestion || !Array.isArray(currentQuiz?.questions)) {
             throw new Error("생성된 문제를 불러오지 못했습니다.");
         }
 
-        setQuestionMessage(currentQuestion, "success");
-
-        const answerOutput = getElement("answerOutput");
-
-        if (answerOutput && currentAnswer) {
-            answerOutput.textContent = currentAnswer;
-        }
+        renderQuiz(currentQuiz.questions, currentQuiz.type);
     } catch (error) {
         console.error("문제 생성 오류:", error);
 
@@ -202,7 +202,7 @@ async function generateQuestion() {
     }
 }
 
-function showAnswer() {
+async function showAnswer() {
     const answerBox = getElement("answerBox");
     const answerOutput = getElement("answerOutput");
 
@@ -210,19 +210,163 @@ function showAnswer() {
         return;
     }
 
-    answerBox.style.display = "block";
-
-    if (!currentAnswer) {
+    if (!currentQuiz?.questions?.length) {
+        answerBox.style.display = "block";
         answerOutput.className = "error";
         answerOutput.textContent = "먼저 문제를 생성해주세요.";
         return;
     }
 
-    answerOutput.className = "success";
-    answerOutput.textContent = currentAnswer;
+    const results = currentQuiz.questions.map((question, index) => {
+        const card = document.querySelector(`[data-question-index="${index}"]`);
+        const selected = card?.querySelector(".quiz-choice.selected");
+        const input = card?.querySelector(".short-answer-input");
+        const submitted = selected
+            ? selected.dataset.choice
+            : String(input?.value || "").trim();
+        const correct = isCorrectAnswer(question, submitted);
+
+        card?.classList.toggle("is-correct", correct);
+        card?.classList.toggle("is-incorrect", !correct);
+
+        card?.querySelectorAll(".quiz-choice").forEach((button) => {
+            button.disabled = true;
+            if (isCorrectAnswer(question, button.dataset.choice)) {
+                button.classList.add("correct-choice");
+            } else if (button.classList.contains("selected")) {
+                button.classList.add("incorrect-choice");
+            }
+        });
+        if (input) input.disabled = true;
+
+        return {
+            number: index + 1,
+            submitted,
+            correct,
+            answer: question.answer,
+            explanation: question.explanation
+        };
+    });
+
+    renderResults(results);
+    answerBox.style.display = "block";
+
+    await saveQuizResults(results);
 
     answerBox.scrollIntoView({
         behavior: "smooth",
         block: "start"
+    });
+}
+
+async function saveQuizResults(results) {
+    const username = localStorage.getItem("username");
+
+    if (!username || !currentHistoryId) return;
+
+    try {
+        const response = await fetch(
+            `/api/history/${encodeURIComponent(username)}/${encodeURIComponent(currentHistoryId)}/results`,
+            {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    results: results.map(({ number, submitted, correct }) => ({ number, submitted, correct }))
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("풀이 결과를 기록에 저장하지 못했습니다.");
+        }
+    } catch (error) {
+        console.error("풀이 결과 저장 오류:", error);
+    }
+}
+
+function renderQuiz(questions, type) {
+    const questionOutput = getElement("questionOutput");
+    if (!questionOutput) return;
+
+    questionOutput.className = "quiz-list";
+    questionOutput.replaceChildren();
+
+    questions.forEach((question, index) => {
+        const card = document.createElement("section");
+        card.className = "quiz-card";
+        card.dataset.questionIndex = String(index);
+
+        const title = document.createElement("h3");
+        title.textContent = `${index + 1}. ${question.question}`;
+        card.appendChild(title);
+
+        if (type === "주관식") {
+            const input = document.createElement("input");
+            input.type = "text";
+            input.className = "short-answer-input";
+            input.placeholder = "정답을 입력하세요";
+            input.autocomplete = "off";
+            card.appendChild(input);
+        } else {
+            const choices = document.createElement("div");
+            choices.className = "choice-list";
+            question.choices.forEach((choice, choiceIndex) => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "quiz-choice";
+                button.dataset.choice = choice;
+                button.textContent = `${["①", "②", "③", "④"][choiceIndex] || `${choiceIndex + 1}.`} ${choice}`;
+                button.addEventListener("click", () => selectChoice(card, button));
+                choices.appendChild(button);
+            });
+            card.appendChild(choices);
+        }
+
+        questionOutput.appendChild(card);
+    });
+}
+
+function selectChoice(card, selectedButton) {
+    card.querySelectorAll(".quiz-choice").forEach((button) => button.classList.remove("selected"));
+    selectedButton.classList.add("selected");
+}
+
+function normalizeAnswer(value) {
+    return String(value || "")
+        .toLowerCase()
+        .replace(/\s+/g, "")
+        .replace(/[.!,?]/g, "");
+}
+
+function isCorrectAnswer(question, submitted) {
+    const answer = normalizeAnswer(question.answer);
+    const value = normalizeAnswer(submitted);
+    return Boolean(value) && answer.split(/[|/]/).some((item) => normalizeAnswer(item) === value);
+}
+
+function renderResults(results) {
+    const answerOutput = getElement("answerOutput");
+    if (!answerOutput) return;
+
+    const correctCount = results.filter((result) => result.correct).length;
+    answerOutput.className = correctCount === results.length ? "success" : "error";
+    answerOutput.replaceChildren();
+
+    const summary = document.createElement("p");
+    summary.className = "score-summary";
+    summary.textContent = `${results.length}문제 중 ${correctCount}문제 정답`;
+    answerOutput.appendChild(summary);
+
+    results.forEach((result) => {
+        const detail = document.createElement("section");
+        detail.className = `answer-feedback ${result.correct ? "correct" : "incorrect"}`;
+        const status = document.createElement("strong");
+        status.textContent = `${result.number}번: ${result.correct ? "정답" : "오답"}`;
+        const answer = document.createElement("p");
+        answer.textContent = `정답: ${result.answer}`;
+        const explanation = document.createElement("p");
+        explanation.textContent = `해설: ${result.explanation}`;
+        detail.append(status, answer, explanation);
+        answerOutput.appendChild(detail);
     });
 }
