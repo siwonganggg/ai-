@@ -139,6 +139,77 @@ function getGeminiError(error) {
     };
 }
 
+function extractJson(text) {
+    const cleaned = String(text || "")
+        .trim()
+        .replace(/^```(?:json)?\s*/i, "")
+        .replace(/\s*```$/, "");
+
+    const start = cleaned.indexOf("{");
+    const end = cleaned.lastIndexOf("}");
+
+    if (start === -1 || end === -1 || end < start) {
+        throw new Error("AI 응답에서 JSON을 찾지 못했습니다.");
+    }
+
+    return JSON.parse(cleaned.slice(start, end + 1));
+}
+
+function normalizeQuiz(rawQuiz, type, count) {
+    if (!Array.isArray(rawQuiz?.questions)) {
+        throw new Error("AI 응답의 문제 목록 형식이 올바르지 않습니다.");
+    }
+
+    const questions = rawQuiz.questions.slice(0, count).map((item, index) => {
+        const question = String(item?.question || "")
+            .trim()
+            .replace(/^(?:문제\s*)?\d+\s*[:.)-]?\s*/, "");
+        const answer = String(item?.answer || "").trim();
+        const explanation = String(item?.explanation || "").trim();
+        const choices = Array.isArray(item?.choices)
+            ? item.choices.map((choice) => String(choice || "")
+                .trim()
+                .replace(/^(?:[①②③④]|\d+)\s*[.)]?\s*/, "")
+            ).filter(Boolean)
+            : [];
+
+        if (!question || !answer || !explanation) {
+            throw new Error(`${index + 1}번 문제의 필수 정보가 비어 있습니다.`);
+        }
+
+        if (type === "객관식" && choices.length !== 4) {
+            throw new Error(`${index + 1}번 객관식의 선택지 수가 올바르지 않습니다.`);
+        }
+
+        if (type === "OX 퀴즈" && choices.length !== 2) {
+            throw new Error(`${index + 1}번 OX 문제의 선택지 수가 올바르지 않습니다.`);
+        }
+
+        return { number: index + 1, question, choices, answer, explanation };
+    });
+
+    if (questions.length !== count) {
+        throw new Error("요청한 수만큼 문제가 생성되지 않았습니다.");
+    }
+
+    return questions;
+}
+
+function quizToText(quiz) {
+    const questions = quiz.map((item) => {
+        const choices = item.choices.length
+            ? `\n${item.choices.map((choice, index) => `${["①", "②", "③", "④"][index] || `${index + 1}.`} ${choice}`).join("\n")}`
+            : "";
+        return `${item.number}. ${item.question}${choices}`;
+    }).join("\n\n");
+
+    const answers = quiz.map((item) =>
+        `${item.number}번: ${item.answer}\n해설: ${item.explanation}`
+    ).join("\n\n");
+
+    return { questions, answers };
+}
+
 // 회원가입
 app.post("/api/signup", (req, res) => {
     try {
@@ -296,6 +367,43 @@ app.get("/api/history/:username", (req, res) => {
     }
 });
 
+// 풀이 결과 저장
+app.patch("/api/history/:username/:historyId/results", (req, res) => {
+    try {
+        const username = String(req.params.username || "").trim();
+        const historyId = String(req.params.historyId || "");
+        const submittedResults = Array.isArray(req.body?.results)
+            ? req.body.results
+            : null;
+
+        if (!submittedResults || submittedResults.length > 20) {
+            return res.status(400).json({ error: "풀이 결과 형식이 올바르지 않습니다." });
+        }
+
+        const users = loadUsers();
+        const user = findUser(users, username);
+        const history = user?.history?.find((item) => item.id === historyId);
+
+        if (!history) {
+            return res.status(404).json({ error: "저장할 문제 기록을 찾을 수 없습니다." });
+        }
+
+        history.results = submittedResults.map((item, index) => ({
+            number: index + 1,
+            submitted: String(item?.submitted || "").slice(0, 500),
+            correct: Boolean(item?.correct)
+        }));
+        history.score = history.results.filter((item) => item.correct).length;
+        history.completedAt = new Date().toISOString();
+        saveUsers(users);
+
+        res.json({ success: true, score: history.score });
+    } catch (error) {
+        console.error("풀이 결과 저장 오류:", error.message);
+        res.status(500).json({ error: "풀이 결과 저장 중 서버 오류가 발생했습니다." });
+    }
+});
+
 // 기록 삭제
 app.delete("/api/history/:username/:historyId", (req, res) => {
     try {
@@ -386,6 +494,12 @@ app.post("/generate", async (req, res) => {
 선택지는 ①, ②, ③, ④ 형식을 사용하라.`;
         }
 
+        const quizShape = type === "객관식"
+            ? '"choices": ["선택지 내용", "선택지 내용", "선택지 내용", "선택지 내용"]'
+            : type === "OX 퀴즈"
+                ? '"choices": ["O", "X"]'
+                : '"choices": []';
+
         const prompt = `
 너는 한국 고등학생을 위한 AI 문제 출제자다.
 아래 학습 내용을 바탕으로 ${count}개의 문제를 만들어라.
@@ -395,49 +509,46 @@ app.post("/generate", async (req, res) => {
 
 ${typeRule}
 
-반드시 아래 형식을 지켜라.
+반드시 JSON만 반환하고, 마크다운 코드 블록이나 부가 설명은 쓰지 마라.
+반환 형식:
+{
+  "questions": [
+    {
+      "question": "문제 내용",
+      ${quizShape},
+      "answer": "정답",
+      "explanation": "정답인 이유를 설명하는 해설"
+    }
+  ]
+}
 
-[문제]
-문제 1
-문제 내용
-
-문제 2
-문제 내용
-
-[정답]
-1번: 정답
-2번: 정답
+객관식 answer에는 선택지의 문구 전체를 정확히 넣어라. 주관식 answer에는 채점 가능한 핵심 정답만 넣어라.
 
 학습 내용:
 ${studyText}
 `;
 
         const result = await model.generateContent(prompt);
-        const generatedText = result.response.text().trim();
-        const parts = generatedText.split(/\[정답\]/i);
-
-        const questions = (parts[0] || "")
-            .replace(/\[문제\]/i, "")
-            .trim();
-
-        const answers = parts.slice(1).join("[정답]").trim();
-
-        if (!questions) {
-            throw new Error("Gemini가 문제 내용을 반환하지 않았습니다.");
-        }
+        const generatedText = result.response.text();
+        const quiz = normalizeQuiz(extractJson(generatedText), type, count);
+        const { questions, answers } = quizToText(quiz);
 
         // 로그인한 사용자만 자동으로 기록을 저장합니다.
+        let historyId = null;
+
         if (username) {
             const users = loadUsers();
+            historyId = crypto.randomUUID();
 
             saveHistoryForUser(users, username, {
-                id: crypto.randomUUID(),
+                id: historyId,
                 studyText,
                 level,
                 count,
                 type,
                 questions,
                 answers: answers || "정답을 불러오지 못했습니다.",
+                results: [],
                 createdAt: new Date().toISOString()
             });
         }
@@ -445,7 +556,9 @@ ${studyText}
         res.json({
             success: true,
             questions,
-            answers: answers || "정답을 불러오지 못했습니다."
+            answers,
+            quiz: { type, questions: quiz },
+            historyId
         });
     } catch (error) {
         // 서버 콘솔에는 진단용 오류를 남기되 API 키는 출력하지 않습니다.
