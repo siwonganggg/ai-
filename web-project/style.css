@@ -363,11 +363,6 @@ pre {
     color: #2e7d32;
 }
 
-#questionOutput.success,
-#answerOutput.success {
-    color: #000000;
-}
-
 
 /* ========================================
    로그인 / 회원가입
@@ -1658,11 +1653,6 @@ body.dark-mode pre {
     color: #eeeeee;
 }
 
-body.dark-mode #questionOutput.success,
-body.dark-mode #answerOutput.success {
-    color: #eeeeee;
-}
-
 
 /* 로그인 / 회원가입 */
 
@@ -1724,4 +1714,179 @@ body.dark-mode #userArea button {
 body.dark-mode #themeToggle {
     background: #eeeeee;
     color: #222222;
+}
+
+.quiz-list {
+    white-space: normal;
+}
+
+.quiz-card {
+    margin: 16px 0;
+    padding: 18px;
+    border: 1px solid #d9dce4;
+    border-radius: 12px;
+}
+
+.quiz-card h3 {
+    margin-top: 0;
+    white-space: pre-wrap;
+}
+
+.choice-list {
+    display: grid;
+    gap: 8px;
+}
+
+.quiz-choice {
+    text-align: left;
+    background: #f7f8fb;
+    color: #20242b;
+    border: 1px solid #d9dce4;
+}
+
+.quiz-choice.selected {
+    background: #dbeafe;
+    border-color: #2563eb;
+}
+
+.quiz-choice.correct-choice,
+.quiz-card.is-correct {
+    border-color: #16a34a;
+}
+
+.quiz-choice.correct-choice {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.quiz-choice.incorrect-choice,
+.quiz-card.is-incorrect {
+    border-color: #dc2626;
+}
+
+.quiz-choice.incorrect-choice {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.short-answer-input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #bfc5d1;
+    border-radius: 8px;
+    font: inherit;
+}
+
+.score-summary {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.answer-feedback {
+    margin-top: 12px;
+    padding: 12px;
+    border-left: 4px solid;
+    border-radius: 6px;
+}
+
+.answer-feedback.correct {
+    border-color: #16a34a;
+    background: #dcfce7;
+}
+
+.answer-feedback.incorrect {
+    border-color: #dc2626;
+    background: #fee2e2;
+}
+
+/* 다크 모드 퀴즈: 선택 상태와 해설을 주변과 분명히 구분 */
+body.dark-mode .quiz-card {
+    background: #202020;
+    border-color: #4b4b4b;
+}
+
+body.dark-mode .quiz-choice {
+    background: #353535;
+    color: #f5f5f5;
+    border-color: #575757;
+}
+
+body.dark-mode .quiz-choice:hover:not(:disabled) {
+    background: #454545;
+}
+
+body.dark-mode .quiz-choice.selected {
+    background: #080808;
+    color: #ffffff;
+    border-color: #a3a3a3;
+}
+
+body.dark-mode .short-answer-input {
+    background: #121212;
+    color: #ffffff;
+    border-color: #6b6b6b;
+}
+
+body.dark-mode #answerBox {
+    background: #202020;
+    border-color: #4b4b4b;
+}
+
+body.dark-mode #answerBox h2,
+body.dark-mode #answerOutput,
+body.dark-mode .score-summary {
+    color: #f8f8f8;
+}
+
+body.dark-mode .answer-feedback.correct {
+    background: #12351f;
+    border-color: #4ade80;
+    color: #ecfdf5;
+}
+
+body.dark-mode .answer-feedback.incorrect {
+    background: #401a1a;
+    border-color: #fb7185;
+    color: #fff1f2;
+}
+
+body.dark-mode .quiz-choice.correct-choice {
+    background: #14532d;
+    color: #f0fdf4;
+    border-color: #4ade80;
+}
+
+body.dark-mode .quiz-choice.incorrect-choice {
+    background: #571c1c;
+    color: #fff1f2;
+    border-color: #fb7185;
+}
+
+.history-results {
+    margin: 10px 0 18px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f3f4f6;
+}
+
+.history-correct {
+    color: #15803d;
+}
+
+.history-incorrect {
+    color: #b91c1c;
+}
+
+body.dark-mode .history-results {
+    background: #202020;
+    color: #f8f8f8;
+}
+
+body.dark-mode .history-correct {
+    color: #86efac;
+}
+
+body.dark-mode .history-incorrect {
+    color: #fda4af;
 }
