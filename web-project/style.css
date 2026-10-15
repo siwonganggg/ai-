@@ -363,6 +363,11 @@ pre {
     color: #2e7d32;
 }
 
+#questionOutput.success,
+#answerOutput.success {
+    color: #000000;
+}
+
 
 /* ========================================
    로그인 / 회원가입
@@ -1650,6 +1655,11 @@ body.dark-mode .resultBox {
 /* 문제 */
 
 body.dark-mode pre {
+    color: #eeeeee;
+}
+
+body.dark-mode #questionOutput.success,
+body.dark-mode #answerOutput.success {
     color: #eeeeee;
 }
 
