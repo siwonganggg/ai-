@@ -105,6 +105,18 @@ function getGeminiError(error) {
     const message = String(error?.message || "");
 
     if (
+        /bound service account is deleted or disabled|service account bound to the API key/i.test(
+            message
+        )
+    ) {
+        return {
+            status: 401,
+            message:
+                "현재 Gemini API 키에 연결된 서비스 계정이 삭제되었거나 비활성화되어 있습니다. Google AI Studio에서 활성 프로젝트의 새 Gemini API 키를 만든 뒤 .env의 GEMINI_API_KEY 값을 교체하고 서버를 다시 시작해주세요."
+        };
+    }
+
+    if (
         /ACCOUNT_STATE_INVALID|401 Unauthorized|API_KEY_INVALID|API key not valid/i.test(
             message
         )
@@ -458,9 +470,9 @@ app.post("/generate", async (req, res) => {
         });
     }
 
-    if (studyText.length > 30000) {
+    if (studyText.length > 12000) {
         return res.status(400).json({
-            error: "학습 내용이 너무 깁니다. 30,000자 이하로 입력해주세요."
+            error: "빠른 문제 생성을 위해 학습 내용은 12,000자 이하로 입력해주세요."
         });
     }
 
@@ -491,7 +503,7 @@ app.post("/generate", async (req, res) => {
         } else {
             typeRule = `
 각 문제는 4지선다 객관식으로 만들어라.
-선택지는 ①, ②, ③, ④ 형식을 사용하라.`;
+선택지는 1,2,3,4 형식을 사용하라.`;
         }
 
         const quizShape = type === "객관식"
@@ -528,7 +540,13 @@ ${typeRule}
 ${studyText}
 `;
 
-        const result = await model.generateContent(prompt);
+        const generationConfig = {
+            temperature: 0.2,
+            maxOutputTokens: Math.min(Math.max(count * 350, 1200), 3500),
+            responseMimeType: "application/json"
+        };
+
+        const result = await model.generateContent(prompt, generationConfig);
         const generatedText = result.response.text();
         const quiz = normalizeQuiz(extractJson(generatedText), type, count);
         const { questions, answers } = quizToText(quiz);
